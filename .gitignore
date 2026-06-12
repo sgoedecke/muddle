@@ -3,3 +3,4 @@ dist/
 bench/runs/
 .DS_Store
 .env
+.github/workflows/pages.yml
