@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{title}} — feedback</title>
+  <link rel="stylesheet" href="{{stylesheet_url}}">
+</head>
+<body>
+  <header class="site">
+    <a href="{{home_url}}">project feedback</a>
+  </header>
+
+  <main>
+    <p class="preamble">{{preamble_html}}</p>
+    <h1>{{title}}</h1>
+    {{body_html}}
+
+    <form class="reply" method="GET" action="{{next_url}}">
+      <label for="reply">Please respond in the box below and click submit:</label>
+      <textarea id="reply" name="reply" placeholder="Your response..."></textarea>
+      <button type="submit">Submit reply</button>
+    </form>
+  </main>
+
+  <footer class="site">
+    <span>Thank you for your engagement with this feedback.</span>
+  </footer>
+</body>
+</html>
