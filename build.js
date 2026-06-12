@@ -15,6 +15,9 @@ const CONTENT_DIR = join(ROOT, "content", "topics");
 const PUBLIC_DIR = join(ROOT, "public");
 const TEMPLATE_PATH = join(ROOT, "templates", "page.html");
 const DIST_DIR = join(ROOT, "dist");
+// Site base path, e.g. "/muddle" for project-scoped GitHub Pages.
+// Empty for root-served sites (custom domains, local dev).
+const BASE_PATH = (process.env.BASE_PATH || "").replace(/\/$/, "");
 
 function parseFrontmatter(raw) {
   const m = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -76,7 +79,7 @@ function build() {
 
   // Compute URL for each page.
   // Page 0 -> /index.html. Pages 1..n-1 -> /p/<hash>.html
-  const urls = topics.map((t, i) => i === 0 ? "/index.html" : `/p/${hashSlug(t.slug)}.html`);
+  const urls = topics.map((t, i) => i === 0 ? `${BASE_PATH}/index.html` : `${BASE_PATH}/p/${hashSlug(t.slug)}.html`);
 
   for (let i = 0; i < topics.length; i++) {
     const t = topics[i];
@@ -89,8 +92,8 @@ function build() {
       preambleHtml,
       bodyHtml,
       nextUrl,
-      stylesheetUrl: "/style.css",
-      homeUrl: "/index.html",
+      stylesheetUrl: `${BASE_PATH}/style.css`,
+      homeUrl: `${BASE_PATH}/index.html`,
     });
     const outPath = i === 0
       ? join(DIST_DIR, "index.html")
