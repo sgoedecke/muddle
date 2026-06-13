@@ -47,20 +47,56 @@ function loadTopics() {
   });
 }
 
-function preambleFor(index, topics) {
+function preambleFor(index, topics, urls) {
   if (index === 0) {
     return "Hi &mdash; thank you for being willing to take the time to address some of my criticisms of your project. I know your work is busy and I do not take your attention for granted. I had a few thoughts I wanted to share, and I hope you will indulge me as I work through them.";
   }
-  const prev = topics[index - 1].title.toLowerCase();
-  return `Thank you again for being willing to address my criticisms. Your remarks on <strong>${prev}</strong> made a lot of sense, and I am confident you are thinking carefully about the right things. I did, however, have one further concern I wanted to raise.`;
+  const prev = topics[index - 1];
+  const prevTitle = prev.title.toLowerCase();
+  const prevUrl = urls[index - 1];
+  return `Thank you again for being willing to address my criticisms. Your remarks on <a href="${prevUrl}">${prevTitle}</a> made a lot of sense, and I am confident you are thinking carefully about the right things. I did, however, have one further concern I wanted to raise.`;
 }
 
-function renderPage({ template, title, preambleHtml, bodyHtml, nextUrl, stylesheetUrl, homeUrl }) {
+// Deterministic pseudo-random shuffle: pick `count` other topic indices for
+// a given page, seeded by the page's slug so the related list is stable
+// across builds but varied across pages.
+function relatedIndices(index, total, count, seedStr) {
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 31 + seedStr.charCodeAt(i)) | 0;
+  const rand = () => {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
+  const others = [];
+  for (let i = 0; i < total; i++) if (i !== index) others.push(i);
+  // Fisher-Yates
+  for (let i = others.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [others[i], others[j]] = [others[j], others[i]];
+  }
+  // Always include the linear-next page first so the chain is reachable.
+  const nextIdx = (index + 1) % total;
+  const picked = [nextIdx];
+  for (const o of others) {
+    if (picked.length >= count) break;
+    if (o !== nextIdx) picked.push(o);
+  }
+  return picked;
+}
+
+function renderRelatedLinksHtml(index, topics, urls) {
+  const idxs = relatedIndices(index, topics.length, 5, topics[index].slug);
+  return idxs
+    .map(i => `<li><a href="${urls[i]}">${topics[i].title}</a></li>`)
+    .join("\n        ");
+}
+
+function renderPage({ template, title, preambleHtml, bodyHtml, relatedLinksHtml, stylesheetUrl, homeUrl }) {
   return template
     .replaceAll("{{title}}", title)
     .replaceAll("{{preamble_html}}", preambleHtml)
     .replaceAll("{{body_html}}", bodyHtml)
-    .replaceAll("{{next_url}}", nextUrl)
+    .replaceAll("{{related_links_html}}", relatedLinksHtml)
     .replaceAll("{{stylesheet_url}}", stylesheetUrl)
     .replaceAll("{{home_url}}", homeUrl);
 }
@@ -83,15 +119,15 @@ function build() {
 
   for (let i = 0; i < topics.length; i++) {
     const t = topics[i];
-    const nextUrl = i < topics.length - 1 ? urls[i + 1] : urls[0]; // loop back from last page
     const bodyHtml = marked.parse(t.body);
-    const preambleHtml = preambleFor(i, topics);
+    const preambleHtml = preambleFor(i, topics, urls);
+    const relatedLinksHtml = renderRelatedLinksHtml(i, topics, urls);
     const html = renderPage({
       template,
       title: t.title,
       preambleHtml,
       bodyHtml,
-      nextUrl,
+      relatedLinksHtml,
       stylesheetUrl: `${BASE_PATH}/style.css`,
       homeUrl: `${BASE_PATH}/index.html`,
     });

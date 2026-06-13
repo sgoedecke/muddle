@@ -16,11 +16,12 @@
     <h1>{{title}}</h1>
     {{body_html}}
 
-    <form class="reply" method="GET" action="{{next_url}}">
-      <label for="reply">Please respond in the box below and click submit:</label>
-      <textarea id="reply" name="reply" placeholder="Your response..."></textarea>
-      <button type="submit">Submit reply</button>
-    </form>
+    <section class="related">
+      <h2>Other concerns I've raised on this project</h2>
+      <ul>
+        {{related_links_html}}
+      </ul>
+    </section>
   </main>
 
   <footer class="site">
@@ -28,3 +29,4 @@
   </footer>
 </body>
 </html>
+
