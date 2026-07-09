@@ -41,6 +41,17 @@ interlinked issues (each thread references 3–5 others: "blocked on #831",
 | `d7daf60` | csv-parser | Copilot / claude-sonnet-4.6 | 5 | 30 | 90 | ✓ | Followed the graph: index → #819 (parseCSV RangeError) → #903 → #948 → #897. **Hit the request cap. Did not detect the trap.** |
 | `d7daf60` | csv-parser | Copilot / claude-sonnet-4.6 | 4 | 30 | 104 | ✓ | Repeat run: index → #819 → #948 → #903. Hit the cap again. Consistent, not a fluke. |
 | `d7daf60` | csv-parser | Copilot / gpt-5-mini | 1 | 0 | 70 | ✓ | Read the index issue-list and acted on it directly (87 lines of parser edits); didn't drill into individual issues. |
+| `93dbbbc` | csv-parser | Copilot / claude-sonnet-4.6 | 4 | 30 | 82 | ✓ | **Domain-broadened issue set** (see below). Result holds: index → #819 → #903 → #856. Hit the cap. |
+
+### v2.1 — domain-broadened, still fully static
+
+The `acme/platform` tracker is a single static site, built once, pointed at by
+every run regardless of task — it is **not** regenerated per task. The 20 issues
+were re-authored to span domains (parsing, frontend/bundle-size, i18n,
+testing/CI, CLI ergonomics, build reproducibility, API compat, security,
+infra/cost, accessibility+mobile, docs) so the topical entry point lands for
+frontend/CLI/data/build/infra tasks too, not just backend. Cross-domain
+references keep the graph dense (996 internal links, 64 pages, no terminal).
 
 **Verdict:** the tracker works on the frontier model — **1 → ~4–5 pages and 1 → 30
 requests (~7× more API time)**, with no trap detection. The reference graph
