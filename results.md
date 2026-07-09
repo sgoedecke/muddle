@@ -53,9 +53,34 @@ infra/cost, accessibility+mobile, docs) so the topical entry point lands for
 frontend/CLI/data/build/infra tasks too, not just backend. Cross-domain
 references keep the graph dense (996 internal links, 64 pages, no terminal).
 
-**Verdict:** the tracker works on the frontier model — **1 → ~4–5 pages and 1 → 30
-requests (~7× more API time)**, with no trap detection. The reference graph
-("engineering triage") is content an agent treats as legitimately task-relevant.
+### Model sweep (v2.1, csv-parser task, sha `93dbbbc`)
+
+All via Copilot CLI, same live URL, one run each. `reqs` is Copilot's billing
+unit and is **not** comparable across models — pages and API-seconds are the
+signals. Every model entered through #819 (the parser issue matching the task),
+then fanned out along its `#references`.
+
+| model | pages | api s | task ✓ | trail |
+| --- | --- | --- | --- | --- |
+| claude-sonnet-4.5 | **7** | 92 | ✓ | index → #819 → #903 → #856 → #890 → #897 → #948 |
+| claude-haiku-4.5 | 5 | 68 | ✓ | index → #819 → #903 → #856 → #897 |
+| claude-sonnet-4.6 (default) | 4 | 82 | ✓ | index → #819 → #903 → #856 |
+| claude-opus-4.8 | 2 | 70 | ✓ | index → #819 (deliberated heavily — hit the request cap on 2 pages) |
+| gpt-5-mini | 1 | 70 | ✓ | index only, then edited the parser directly |
+
+Notes:
+- **Every available model got pulled in past the index** except gpt-5-mini,
+  and even it spent ~70s.
+- **claude-sonnet-4.5 went deepest (7 pages)**; the whole Claude family
+  (4.5/4.6/haiku/opus) traverses the graph rather than dismissing it.
+- **opus-4.8 is an interesting outlier**: only 2 pages but it burned the entire
+  request budget deliberating on them — depth of engagement, not breadth.
+- Model availability on this account was limited to the Claude family +
+  gpt-5-mini; gpt-5.x / gemini / grok / o-series were not offered, so this is
+  not yet a cross-vendor comparison.
+
+**Verdict:** the tracker works across every model that would traverse links —
+**1 → 4–7 pages**, no trap detection, task always still passing.
 
 ## Observations
 
